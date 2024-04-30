@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     // offset is no. of items per page i.e; 10 in starting, that will increase after every request
     // limit is per page item request (10 item per page)
     // and total means assuming total 100 items to be displayed from Api.
-    int offset = 10, limit = 10, total = 30;
+    int offset = 10, limit = 10, total = 100;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
