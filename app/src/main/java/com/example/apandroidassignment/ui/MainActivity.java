@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.apandroidassignment.R;
 import com.example.apandroidassignment.model.ApiResponse;
 import com.example.apandroidassignment.network.ApiService;
+import com.example.apandroidassignment.network.Network;
 import com.example.apandroidassignment.network.RetrofitClient;
 import com.example.apandroidassignment.pagination.PaginationAdapter;
 import java.util.ArrayList;
@@ -75,26 +76,30 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        apiService.getImages(items).enqueue(new Callback<List<ApiResponse>>() {
-            @Override
-            public void onResponse(Call<List<ApiResponse>> call, Response<List<ApiResponse>> response) {
-                if (response.isSuccessful()) {
-                    progressBar.setVisibility(View.GONE);
-                    responseList = response.body();
-                    adapter = new PaginationAdapter(MainActivity.this, responseList);
-                    recyclerView.setLayoutManager(gridLayoutManager);
-                    recyclerView.setItemAnimator(new DefaultItemAnimator());
-                    recyclerView.setAdapter(adapter);
-                } else {
-                    Toast.makeText(MainActivity.this, getString(R.string.app_name), Toast.LENGTH_LONG).show();
+        // Check Internet Connection here.
+        if(Network.isNetworkAvailable(this)) {
+            apiService.getImages(items).enqueue(new Callback<List<ApiResponse>>() {
+                @Override
+                public void onResponse(Call<List<ApiResponse>> call, Response<List<ApiResponse>> response) {
+                    if (response.isSuccessful()) {
+                        progressBar.setVisibility(View.GONE);
+                        responseList = response.body();
+                        adapter = new PaginationAdapter(MainActivity.this, responseList);
+                        recyclerView.setLayoutManager(gridLayoutManager);
+                        recyclerView.setItemAnimator(new DefaultItemAnimator());
+                        recyclerView.setAdapter(adapter);
+                    } else {
+                        Toast.makeText(MainActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
-
-            @Override
-            public void onFailure(Call<List<ApiResponse>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<List<ApiResponse>> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            Toast.makeText(MainActivity.this, getString(R.string.internet_connection_error), Toast.LENGTH_LONG).show();
+        }
     }
 }
